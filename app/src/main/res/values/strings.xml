@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">MVPDaggerRXButterKnifeIntegrador</string>
+    <string name="tmdb_api_key">bf55d24e465b3fb8dd1800b20fefff34</string>
+    <string name="omdb_api_key">d46ceacd</string>
+</resources>
