@@ -12,9 +12,9 @@ public interface Repository {
    Observable<Movie> getResultFromCache();
 
 
-    Observable<String> getCountry();
-    Observable<String> getCountryFromNetwork();
-    Observable<String> getCountryFromCache();
+   Observable<String> getCountry();
+   Observable<String> getCountryFromNetwork();
+   Observable<String> getCountryFromCache();
 
 
 }

@@ -17,11 +17,9 @@ public class MainActivityModel implements MovieMVP.MainActivityModel {
     @Override
     public Observable<CustomViewModel> result() {
 
-        return Observable.zip(source.getMoviesFromTMDb(), source.getCountry(), new BiFunction<Movie, String, CustomViewModel>() {
-            @Override
-            public CustomViewModel apply(Movie movie, String s) throws Exception {
-                return new CustomViewModel(movie.getTitle(), s);
-            }
-        });
+        return Observable.zip(
+                source.getMoviesFromTMDb(),
+                source.getCountry(),
+                (movie, s) -> new CustomViewModel(movie.getTitle(), s));
     }
 }

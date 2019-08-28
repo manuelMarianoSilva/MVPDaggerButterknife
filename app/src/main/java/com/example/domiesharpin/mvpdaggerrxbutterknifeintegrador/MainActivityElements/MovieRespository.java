@@ -51,20 +51,12 @@ public class MovieRespository implements Repository {
     public Observable<Movie> getResultFromNetwork() {
         Observable<MovieContainer> movieContainerObservable = tmDbAPIService.getTopRatedMovies("bf55d24e465b3fb8dd1800b20fefff34","es_AR",1)
                 .concatWith(tmDbAPIService.getTopRatedMovies("bf55d24e465b3fb8dd1800b20fefff34","es_AR", 2))
-                .concatWith(tmDbAPIService.getTopRatedMovies("bf55d24e465b3fb8dd1800b20fefff34","es_AR", 2));
+                .concatWith(tmDbAPIService.getTopRatedMovies("bf55d24e465b3fb8dd1800b20fefff34","es_AR", 3));
 
 
-        return movieContainerObservable.concatMap(new Function<MovieContainer, ObservableSource<Movie>>() {
-            @Override
-            public ObservableSource<Movie> apply(MovieContainer movieContainer) throws Exception {
-                return Observable.fromIterable(movieContainer.getResults());
-            }
-        }).doOnNext(new Consumer<Movie>() {
-            @Override
-            public void accept(Movie movie) throws Exception {
-                movieCache.add(movie);
-            }
-        });
+        return movieContainerObservable.concatMap(
+                (Function<MovieContainer, ObservableSource<Movie>>) movieContainer ->
+                        Observable.fromIterable(movieContainer.getResults())).doOnNext(movie -> movieCache.add(movie));
     }
 
     @Override
@@ -82,27 +74,17 @@ public class MovieRespository implements Repository {
     @Override
     public Observable<String> getCountryFromNetwork() {
 
-        return getMoviesFromTMDb().concatMap(new Function<Movie, ObservableSource<OMDbMovieContainer>>() {
-            @Override
-            public ObservableSource<OMDbMovieContainer> apply(Movie movie) throws Exception {
-                return omDbAPIService.getMovieInfo("d46ceacd", movie.getTitle());
-            }
-        }).concatMap(new Function<OMDbMovieContainer, ObservableSource<String>>() {
-            @Override
-            public ObservableSource<String> apply(OMDbMovieContainer omDbMovieContainer) throws Exception {
-                if (omDbMovieContainer == null || omDbMovieContainer.getCountry() == null) {
-                    return Observable.just("Desconocido");
-                } else {
-                    return Observable.just(omDbMovieContainer.getCountry());
-                }
+        return getMoviesFromTMDb()
+                .concatMap((Function<Movie, ObservableSource<OMDbMovieContainer>>) movie ->
+                        omDbAPIService.getMovieInfo("d46ceacd", movie.getTitle()))
+                            .concatMap((Function<OMDbMovieContainer, ObservableSource<String>>) omDbMovieContainer -> {
+                                if (omDbMovieContainer == null || omDbMovieContainer.getCountry() == null) {
+                                    return Observable.just("Desconocido");
+                                } else {
+                                    return Observable.just(omDbMovieContainer.getCountry());
+                                }
 
-            }
-        }).doOnNext(new Consumer<String>() {
-            @Override
-            public void accept(String s) throws Exception {
-                countryCache.add(s);
-            }
-        });
+                            }).doOnNext(s -> countryCache.add(s));
     }
 
     @Override
